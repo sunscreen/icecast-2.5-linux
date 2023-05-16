@@ -42,16 +42,16 @@ threadlib=static_library('icethread','common/thread/thread.c',include_directorie
 conf_data = configuration_data()
 conf_data.set('ICE_VER', '"'+meson.project_version()+'"')
 
-conf_data.set('HAVE_SYS_TYPES_H','')
-conf_data.set('HAVE_SYS_STAT_H','')
-conf_data.set('HAVE_SYS_RESOURCE_H','')
+conf_data.set('HAVE_SYS_TYPES_H',true)
+conf_data.set('HAVE_SYS_STAT_H',true)
+conf_data.set('HAVE_SYS_RESOURCE_H',true)
 conf_data.set('HAVE_SYS_UIO_H','')
-conf_data.set('HAVE_UNISTD_H','')
-conf_data.set('HAVE_STDINT_H','')
-conf_data.set('HAVE_PWD_H','')
-conf_data.set('HAVE_GRP_H','')
-conf_data.set('HAVE_SYS_SOCKET_H','')
-conf_data.set('HAVE_STRINGS_H','')
+conf_data.set('HAVE_UNISTD_H',true)
+conf_data.set('HAVE_STDINT_H',true)
+conf_data.set('HAVE_PWD_H',true)
+conf_data.set('HAVE_GRP_H',true)
+conf_data.set('HAVE_SYS_SOCKET_H',true)
+conf_data.set('HAVE_STRINGS_H',true)
 
 
 mycomp=meson.get_compiler('c')
@@ -75,11 +75,11 @@ endforeach
 
 
 if (mycomp.has_function('localtime_r'))
-conf_data.set('HAVE_LOCALTIME_R','')
+conf_data.set('HAVE_LOCALTIME_R',true)
 endif
 
 if (mycomp.has_function('uname'))
-conf_data.set('HAVE_UNAME','')
+conf_data.set('HAVE_UNAME',true)
 endif
 
 if (mycomp.has_function('getrlimit'))
