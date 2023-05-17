@@ -1,4 +1,4 @@
-project('icecast-linux', 'c',default_options : ['c_std=gnu99'],version:'2.5.0-Linux')
+project('icecast-linux', 'c', default_options : ['c_std=gnu99'], version:'2.5.0-Linux')
 
 add_global_arguments(['-DHAVE_CONFIG_H'], language : 'c')
 add_global_arguments(['-DHAVE_POLL'], language : 'c')
@@ -10,15 +10,15 @@ thread_dep = dependency('threads')
 ssl_dep = dependency('libssl')
 crypto_dep = dependency('libcrypto')
 xml_dep = dependency('libxml-2.0')
-xslt_dep=dependency('libxslt')
+xslt_dep = dependency('libxslt')
 curl_dep = dependency('libcurl')
-vorbis_dep=dependency('vorbis')
-ogg_dep=dependency('ogg')
-theora_dep=dependency('theora')
-speex_dep=dependency('speex')
+vorbis_dep = dependency('vorbis')
+ogg_dep = dependency('ogg')
+theora_dep = dependency('theora')
+speex_dep = dependency('speex')
 
 conf_data = configuration_data()
-conf_data.set('ICE_VER', '"'+meson.project_version()+'"')
+conf_data.set('ICE_VER', '"' + meson.project_version() + '"')
 
 if mycomp.has_header('sys/types.h')
     conf_data.set('HAVE_SYS_TYPES_H', true)
@@ -65,14 +65,14 @@ conf_data.set('USE_YP',true)
 
 foreach func: ['epoll_create', 'poll']
     if (mycomp.has_function(func))
-         if (func=='epoll_create')
+         if (func == 'epoll_create')
          message('Best Poll Selected Epoll')
          break
          endif
     endif
 endforeach
 
-foreach func: ['select','inet_pton','inet_addr','gethostname','getaddrinfo']
+foreach func: ['select', 'inet_pton', 'inet_addr', 'gethostname', 'getaddrinfo']
     if (mycomp.has_function(func))
     conf_data.set('HAVE_'+func.to_upper(),true)
     endif
@@ -128,10 +128,10 @@ objs = ['main.c','cfgfile.c','logging.c','sighandler.c',
         'curl.c','auth_url.c','event_url.c',
         'yp.c','format_vorbis.c','format_theora.c',
         'format_speex.c']
-link_libs=[avl_lib,net_lib,httpp_lib,log_lib,timing_lib,thread_lib]
+link_libs=[avl_lib, net_lib, httpp_lib, log_lib, timing_lib, thread_lib]
 build_deps=[ssl_dep, crypto_dep, xml_dep, xslt_dep, vorbis_dep, ogg_dep, theora_dep,speex_dep,curl_dep,thread_dep]
 
-executable('icecast', [objs],dependencies : [build_deps], include_directories:['../common'], link_with:[link_libs])
+executable('icecast', [objs], dependencies : [build_deps], include_directories:['../common'], link_with:[link_libs])
 
 install_emptydir(ui_dir+'/admin')
 install_emptydir(ui_dir+'/web')
