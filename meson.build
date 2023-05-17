@@ -18,18 +18,8 @@ speex_dep=dependency('speex')
 #                     '-DHAVE_SYS_SOCKET_H','-DHAVE_STDINT_H','-DHAVE_CURL','-DHAVE_THEORA','-DHAVE_OPENSSL','-DHAVE_UNAME','-DHAVE_GETHOSTNAME','-DHAVE_GETADDRINFO','-DHAVE_STRINGS_H',
 #                     '-DHAVE_PWD_H','-DHAVE_GRP_H','-DUSE_YP'], language : 'c')
 
-
-#add_global_arguments(['-DHAVE_CONFIG_H','-DHAVE_SYS_STAT_H','-DHAVE_SYS_TYPES_H','-DHAVE_SYS_RESOURCE_H',
-#                     '-DHAVE_UNISTD_H','-DHAVE_XSLTSAVERESULTTOSTRING','-DHAVE_LOCALTIME_R','-DHAVE_SYS_UIO_H',
-#                     '-DHAVE_SYS_SOCKET_H','-DHAVE_STDINT_H','-DHAVE_STRINGS_H',
-#                     '-DHAVE_PWD_H','-DHAVE_GRP_H'], language : 'c')
-
 add_global_arguments(['-DHAVE_CONFIG_H'], language : 'c')
-
-add_global_arguments(['-DHAVE_POLL',
-                     '-DHAVE_XSLTSAVERESULTTOSTRING',
-                     '-DHAVE_CURL','-DHAVE_THEORA','-DHAVE_OPENSSL',
-                     '-DUSE_YP'], language : 'c')
+add_global_arguments(['-DHAVE_POLL'], language : 'c')
 
 avl_lib = static_library('iceavl_la', 'common/avl/avl.c',include_directories: '../common',link_with:[],dependencies:[thread_dep])
 httpp_lib = static_library('icehttpp', ['common/httpp/httpp.c','common/httpp/encoding.c'],include_directories: '../common',link_with:[],dependencies:[thread_dep])
@@ -38,51 +28,83 @@ log_lib = static_library('icelog', ['common/log/log.c'],include_directories: '..
 timing_lib = static_library('icetiming', ['common/timing/timing.c'],include_directories: '../common',link_with:[])
 
 threadlib=static_library('icethread','common/thread/thread.c',include_directories:'../common',link_with:[avl_lib],dependencies:[thread_dep])
+mycomp=meson.get_compiler('c')
 
 conf_data = configuration_data()
 conf_data.set('ICE_VER', '"'+meson.project_version()+'"')
 
-conf_data.set('HAVE_SYS_TYPES_H',true)
-conf_data.set('HAVE_SYS_STAT_H',true)
-conf_data.set('HAVE_SYS_RESOURCE_H',true)
-conf_data.set('HAVE_SYS_UIO_H',true)
-conf_data.set('HAVE_UNISTD_H',true)
-conf_data.set('HAVE_STDINT_H',true)
-conf_data.set('HAVE_PWD_H',true)
-conf_data.set('HAVE_GRP_H',true)
-conf_data.set('HAVE_SYS_SOCKET_H',true)
-conf_data.set('HAVE_STRINGS_H',true)
+if mycomp.has_header('sys/types.h')
+  # header exists, do something
+conf_data.set('HAVE_SYS_TYPES_H', true)
+
+endif
+
+if mycomp.has_header('sys/stat.h')
+conf_data.set('HAVE_SYS_STAT_H', true)
+endif
+
+if mycomp.has_header('sys/uio.h')
+
+conf_data.set('HAVE_SYS_UIO_H', true)
+endif
+
+if mycomp.has_header('sys/socket.h')
+conf_data.set('HAVE_SYS_SOCKET_H', true)
+endif
+
+if mycomp.has_header('unistd.h')
+conf_data.set('HAVE_UNISTD_H', true)
+endif
+
+if mycomp.has_header('stdint.h')
+conf_data.set('HAVE_STDINT_H', true)
+endif
+
+if mycomp.has_header('pwd.h')
+conf_data.set('HAVE_PWD_H', true)
+endif
+
+if mycomp.has_header('grp.h')
+conf_data.set('HAVE_GRP_H', true)
+endif
+
+if mycomp.has_header('string.h')
+conf_data.set('HAVE_STRINGS_H', true)
+endif
 
 
-mycomp=meson.get_compiler('c')
+conf_data.set('HAVE_XSLTSAVERESULTTOSTRING',true)
+conf_data.set('HAVE_OPENSSL', true)
+conf_data.set('HAVE_CURL', true)
+conf_data.set('HAVE_THEORA', true)
+conf_data.set('USE_YP',true)
 
 foreach func: ['epoll_create', 'poll']
- #if cc.has_function(func) -> confdata.set('HAVE_' + func.to_upper(), true)
-
-if (mycomp.has_function(func))
-if (func=='epoll_create')
-message('Best Poll Selected Epoll')
-break
-endif
-endif
+    if (mycomp.has_function(func))
+         if (func=='epoll_create')
+         message('Best Poll Selected Epoll')
+         break
+         endif
+    endif
 endforeach
 
 foreach func: ['select','inet_pton','inet_addr','gethostname','getaddrinfo']
-if (mycomp.has_function(func))
-conf_data.set('HAVE_'+func.to_upper(),true)
-endif
+    if (mycomp.has_function(func))
+    conf_data.set('HAVE_'+func.to_upper(),true)
+    endif
 endforeach
 
 
 if (mycomp.has_function('localtime_r'))
-conf_data.set('HAVE_LOCALTIME_R',true)
+    conf_data.set('HAVE_LOCALTIME_R','')
 endif
 
 if (mycomp.has_function('uname'))
-conf_data.set('HAVE_UNAME',true)
+    conf_data.set('HAVE_UNAME','')
 endif
 
 if (mycomp.has_function('getrlimit'))
+    conf_data.set('HAVE_SYS_RESOURCE_H','')
 endif
 
 
