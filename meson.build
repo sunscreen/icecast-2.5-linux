@@ -105,7 +105,6 @@ message( meson.current_source_dir())
 #ui_dir='/usr/local/share/icecast-linux'
 ui_dir=fs.parent(meson.current_source_dir())+'/sharetest'
 message( ui_dir )
-conf_data.set('ADMIN_ROOT',ui_dir)
 
 configure_file(output : 'config.h', configuration : conf_data,install:false,install_dir:meson.current_source_dir())
 
