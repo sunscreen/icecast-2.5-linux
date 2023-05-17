@@ -36,8 +36,21 @@ if mycomp.has_header('sys/socket.h')
     conf_data.set('HAVE_SYS_SOCKET_H', true)
 endif
 
+if mycomp.has_header('sys/resource.h')
+    conf_data.set('HAVE_SYS_RESOURCE_H', true)
+endif
+
+if mycomp.has_header('sys/select.h')
+    conf_data.set('HAVE_SYS_SELECT_H', true)
+endif
+
 if mycomp.has_header('unistd.h')
     conf_data.set('HAVE_UNISTD_H', true)
+endif
+
+
+if mycomp.has_header('inttypes.h')
+    conf_data.set('HAVE_STDINT_H', true)
 endif
 
 if mycomp.has_header('stdint.h')
@@ -57,11 +70,15 @@ if mycomp.has_header('strings.h')
 endif
 
 
+conf_data.set('_GNU_SOURCE',true)
+
 conf_data.set('HAVE_XSLTSAVERESULTTOSTRING',true)
 conf_data.set('HAVE_OPENSSL', true)
 conf_data.set('HAVE_CURL', true)
 conf_data.set('HAVE_THEORA', true)
 conf_data.set('USE_YP',true)
+conf_data.set('FASTEVENT_ENABLED',true)
+conf_data.set('ICECAST_CAP_TLS',true)
 
 foreach func: ['epoll_create', 'poll']
     if (mycomp.has_function(func))
@@ -72,25 +89,11 @@ foreach func: ['epoll_create', 'poll']
     endif
 endforeach
 
-foreach func: ['select', 'inet_pton', 'inet_addr', 'gethostname', 'getaddrinfo']
+foreach func: ['select', 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 'getaddrinfo','localtime_r','uname','getrlimit', 'nanosleep','setenv','setuid','setresuid','chroot','sethostent','endhostent','strcasestr']
     if (mycomp.has_function(func))
     conf_data.set('HAVE_'+func.to_upper(),true)
     endif
 endforeach
-
-
-if (mycomp.has_function('localtime_r'))
-    conf_data.set('HAVE_LOCALTIME_R','')
-endif
-
-if (mycomp.has_function('uname'))
-    conf_data.set('HAVE_UNAME','')
-endif
-
-if (mycomp.has_function('getrlimit'))
-    conf_data.set('HAVE_SYS_RESOURCE_H','')
-endif
-
 
 avl_lib = static_library('iceavl', 'common/avl/avl.c',include_directories: '../common', link_with:[], dependencies:[thread_dep])
 httpp_lib = static_library('icehttpp', ['common/httpp/httpp.c', 'common/httpp/encoding.c'], include_directories: '../common', link_with:[], dependencies:[thread_dep])
@@ -104,7 +107,7 @@ thread_lib=static_library('icethread', 'common/thread/thread.c', include_directo
 message( meson.current_source_dir() )
 ui_dir='/usr/local/share/icecast-linux'
 #ui_dir=fs.parent(meson.current_source_dir())+'/sharetest'
-message( ui_dir )
+message('Installing web interface to: '+ ui_dir )
 
 configure_file(output : 'config.h', configuration : conf_data,install:false,install_dir:meson.current_source_dir())
 
