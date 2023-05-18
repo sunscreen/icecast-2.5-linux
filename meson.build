@@ -98,7 +98,8 @@ objs = ['main.c','cfgfile.c','logging.c','sighandler.c',
 link_libs=[avl_lib, net_lib, httpp_lib, log_lib, timing_lib, thread_lib]
 build_deps=[ssl_dep, crypto_dep, xml_dep, xslt_dep, vorbis_dep, ogg_dep, theora_dep,speex_dep,curl_dep,thread_dep]
 
-executable('icecast', [objs], dependencies : [build_deps], include_directories:['../common'], link_with:[link_libs])
+common_include_dir=include_directories('common')
+executable('icecast', [objs], dependencies : [build_deps], include_directories:[common_include_dir], link_with:[link_libs])
 
 install_emptydir(ui_dir+'/admin')
 install_emptydir(ui_dir+'/web')
