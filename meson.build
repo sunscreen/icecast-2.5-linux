@@ -18,59 +18,23 @@ theora_dep = dependency('theora')
 speex_dep = dependency('speex')
 
 conf_data = configuration_data()
+conf_data.set('_GNU_SOURCE',true)
 conf_data.set('ICE_VER', '"' + meson.project_version() + '"')
 
-if mycomp.has_header('sys/types.h')
-    conf_data.set('HAVE_SYS_TYPES_H', true)
-endif
+std_headers=['unistd','inttypes','stdint','pwd','grp','strings']
+sys_headers=['types','stat','uio','socket','resource','select']
 
-if mycomp.has_header('sys/stat.h')
-    conf_data.set('HAVE_SYS_STAT_H', true)
-endif
+foreach header:std_headers
+    if (mycomp.has_header(header+'.h'))
+    conf_data.set('HAVE_'+header.to_upper()+'_H',true)
+    endif
+endforeach
 
-if mycomp.has_header('sys/uio.h')
-    conf_data.set('HAVE_SYS_UIO_H', true)
-endif
-
-if mycomp.has_header('sys/socket.h')
-    conf_data.set('HAVE_SYS_SOCKET_H', true)
-endif
-
-if mycomp.has_header('sys/resource.h')
-    conf_data.set('HAVE_SYS_RESOURCE_H', true)
-endif
-
-if mycomp.has_header('sys/select.h')
-    conf_data.set('HAVE_SYS_SELECT_H', true)
-endif
-
-if mycomp.has_header('unistd.h')
-    conf_data.set('HAVE_UNISTD_H', true)
-endif
-
-
-if mycomp.has_header('inttypes.h')
-    conf_data.set('HAVE_STDINT_H', true)
-endif
-
-if mycomp.has_header('stdint.h')
-    conf_data.set('HAVE_STDINT_H', true)
-endif
-
-if mycomp.has_header('pwd.h')
-    conf_data.set('HAVE_PWD_H', true)
-endif
-
-if mycomp.has_header('grp.h')
-    conf_data.set('HAVE_GRP_H', true)
-endif
-
-if mycomp.has_header('strings.h')
-    conf_data.set('HAVE_STRINGS_H', true)
-endif
-
-
-conf_data.set('_GNU_SOURCE',true)
+foreach header:sys_headers
+    if (mycomp.has_header('sys/'+header+'.h'))
+    conf_data.set('HAVE_SYS_'+header.to_upper()+'_H',true)
+    endif
+endforeach
 
 conf_data.set('HAVE_XSLTSAVERESULTTOSTRING',true)
 conf_data.set('HAVE_OPENSSL', true)
@@ -124,12 +88,12 @@ objs = ['main.c','cfgfile.c','logging.c','sighandler.c',
         'fastevent.c','navigation.c','format.c',
         'format_ogg.c','format_mp3.c','format_midi.c',
         'format_flac.c','format_ebml.c','format_text.c',
-        'format_kate.c','format_skeleton.c','format_opus.c',
+        'format_kate.c','format_skeleton.c','format_opus.c','format_vorbis.c','format_theora.c',
         'event.c','event_log.c','event_exec.c',
         'acl.c','auth.c','auth_htpasswd.c',
         'auth_anonymous.c','auth_static.c','auth_enforce_auth.c',
         'curl.c','auth_url.c','event_url.c',
-        'yp.c','format_vorbis.c','format_theora.c',
+        'yp.c',
         'format_speex.c']
 link_libs=[avl_lib, net_lib, httpp_lib, log_lib, timing_lib, thread_lib]
 build_deps=[ssl_dep, crypto_dep, xml_dep, xslt_dep, vorbis_dep, ogg_dep, theora_dep,speex_dep,curl_dep,thread_dep]
