@@ -28,6 +28,15 @@ conf_data.set('HAVE_OPENSSL', true)
 conf_data.set('ICECAST_CAP_TLS',true)
 endif
 
+if (xslt_dep.found())
+conf_data.set('HAVE_XSLTSAVERESULTTOSTRING',true)
+endif
+
+if (theora_dep.found())
+conf_data.set('HAVE_THEORA', true)
+endif
+
+
 if (curl_dep.found())
 conf_data.set('HAVE_CURL', true)
 endif
@@ -47,13 +56,8 @@ foreach header:sys_headers
     endif
 endforeach
 
-conf_data.set('HAVE_XSLTSAVERESULTTOSTRING',true)
-#conf_data.set('HAVE_OPENSSL', true)
-#conf_data.set('HAVE_CURL', true)
-conf_data.set('HAVE_THEORA', true)
 conf_data.set('USE_YP',true)
 conf_data.set('FASTEVENT_ENABLED',true)
-#conf_data.set('ICECAST_CAP_TLS',true)
 
 foreach func: ['epoll_create', 'poll']
     if (mycomp.has_function(func))
