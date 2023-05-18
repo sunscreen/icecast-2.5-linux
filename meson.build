@@ -17,6 +17,8 @@ ogg_dep = dependency('ogg')
 theora_dep = dependency('theora')
 speex_dep = dependency('speex')
 
+common_include_dir=include_directories('common')
+
 conf_data = configuration_data()
 conf_data.set('_GNU_SOURCE',true)
 conf_data.set('ICE_VER', '"' + meson.project_version() + '"')
@@ -59,14 +61,12 @@ foreach func: ['select', 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 
     endif
 endforeach
 
-avl_lib = static_library('iceavl', 'common/avl/avl.c',include_directories: '../common', link_with:[], dependencies:[thread_dep])
-httpp_lib = static_library('icehttpp', ['common/httpp/httpp.c', 'common/httpp/encoding.c'], include_directories: '../common', link_with:[], dependencies:[thread_dep])
-net_lib = static_library('icenet', ['common/net/sock.c', 'common/net/resolver.c'], include_directories: '../common', link_with:[], dependencies:[thread_dep])
-log_lib = static_library('icelog', ['common/log/log.c'], include_directories: '../common', link_with:[])
-timing_lib = static_library('icetiming', ['common/timing/timing.c'], include_directories: '../common', link_with:[])
-
-thread_lib=static_library('icethread', 'common/thread/thread.c', include_directories:'../common', link_with:[avl_lib], dependencies:[thread_dep])
-
+avl_lib = static_library('iceavl', 'common/avl/avl.c',include_directories: common_include_dir, link_with:[], dependencies:[thread_dep])
+httpp_lib = static_library('icehttpp', ['common/httpp/httpp.c', 'common/httpp/encoding.c'], include_directories: common_include_dir, link_with:[], dependencies:[thread_dep])
+net_lib = static_library('icenet', ['common/net/sock.c', 'common/net/resolver.c'], include_directories: common_include_dir, link_with:[], dependencies:[thread_dep])
+log_lib = static_library('icelog', ['common/log/log.c'], include_directories: common_include_dir, link_with:[])
+timing_lib = static_library('icetiming', ['common/timing/timing.c'], include_directories: common_include_dir, link_with:[])
+thread_lib=static_library('icethread', 'common/thread/thread.c', include_directories:common_include_dir, link_with:[avl_lib], dependencies:[thread_dep])
 
 message( meson.current_source_dir() )
 ui_dir='/usr/local/share/icecast-linux'
@@ -98,7 +98,6 @@ objs = ['main.c','cfgfile.c','logging.c','sighandler.c',
 link_libs=[avl_lib, net_lib, httpp_lib, log_lib, timing_lib, thread_lib]
 build_deps=[ssl_dep, crypto_dep, xml_dep, xslt_dep, vorbis_dep, ogg_dep, theora_dep,speex_dep,curl_dep,thread_dep]
 
-common_include_dir=include_directories('common')
 executable('icecast', [objs], dependencies : [build_deps], include_directories:[common_include_dir], link_with:[link_libs])
 
 install_emptydir(ui_dir+'/admin')
