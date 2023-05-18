@@ -23,6 +23,15 @@ conf_data = configuration_data()
 conf_data.set('_GNU_SOURCE',true)
 conf_data.set('ICE_VER', '"' + meson.project_version() + '"')
 
+if (ssl_dep.found())
+conf_data.set('HAVE_OPENSSL', true)
+conf_data.set('ICECAST_CAP_TLS',true)
+endif
+
+if (curl_dep.found())
+conf_data.set('HAVE_CURL', true)
+endif
+
 std_headers=['unistd','inttypes','stdint','pwd','grp','strings']
 sys_headers=['types','stat','uio','socket','resource','select']
 
@@ -39,12 +48,12 @@ foreach header:sys_headers
 endforeach
 
 conf_data.set('HAVE_XSLTSAVERESULTTOSTRING',true)
-conf_data.set('HAVE_OPENSSL', true)
-conf_data.set('HAVE_CURL', true)
+#conf_data.set('HAVE_OPENSSL', true)
+#conf_data.set('HAVE_CURL', true)
 conf_data.set('HAVE_THEORA', true)
 conf_data.set('USE_YP',true)
 conf_data.set('FASTEVENT_ENABLED',true)
-conf_data.set('ICECAST_CAP_TLS',true)
+#conf_data.set('ICECAST_CAP_TLS',true)
 
 foreach func: ['epoll_create', 'poll']
     if (mycomp.has_function(func))
