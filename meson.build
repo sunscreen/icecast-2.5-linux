@@ -109,13 +109,12 @@ objs = ['main.c','cfgfile.c','logging.c','sighandler.c',
         'fastevent.c','navigation.c','format.c',
         'format_ogg.c','format_mp3.c','format_midi.c',
         'format_flac.c','format_ebml.c','format_text.c',
-        'format_kate.c','format_skeleton.c','format_opus.c','format_vorbis.c','format_theora.c',
+        'format_kate.c','format_skeleton.c','format_opus.c','format_vorbis.c','format_theora.c','format_speex.c',
         'event.c','event_log.c','event_exec.c',
         'acl.c','auth.c','auth_htpasswd.c',
         'auth_anonymous.c','auth_static.c','auth_enforce_auth.c',
         'curl.c','auth_url.c','event_url.c',
-        'yp.c',
-        'format_speex.c']
+        'yp.c']
 link_libs=[avl_lib, net_lib, httpp_lib, log_lib, timing_lib, thread_lib]
 build_deps=[ssl_dep, crypto_dep, xml_dep, xslt_dep, vorbis_dep, ogg_dep, theora_dep,speex_dep,curl_dep,thread_dep]
 
