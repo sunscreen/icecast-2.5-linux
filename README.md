@@ -1,4 +1,5 @@
 # icecast-2.5-linux
+```
 root@ks4000477:~/icecast-2.5-linux/src/builddir# time meson setup --wipe
 The Meson build system
 Version: 1.1.0
@@ -77,3 +78,4 @@ real    0m1.884s
 user    0m4.832s
 sys     0m0.512s
 root@ks4000477:~/icecast-2.5-linux/src/builddir# cd common/
+```
