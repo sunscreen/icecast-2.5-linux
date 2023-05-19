@@ -3,6 +3,9 @@ project('icecast-linux', 'c', default_options : ['c_std=gnu99'], version:'2.5.0-
 add_global_arguments(['-DHAVE_CONFIG_H'], language : 'c')
 add_global_arguments(['-DHAVE_POLL'], language : 'c')
 
+#install_prefix=option('prefix')
+#message(install_prefix)
+
 mycomp=meson.get_compiler('c')
 fs = import('fs')
 
@@ -23,6 +26,10 @@ conf_data = configuration_data()
 conf_data.set('_GNU_SOURCE',true)
 conf_data.set('ICE_VER', '"' + meson.project_version() + '"')
 
+if (thread_dep.found())
+conf_data.set('FASTEVENT_ENABLED',true)
+endif
+
 if (ssl_dep.found())
 conf_data.set('HAVE_OPENSSL', true)
 conf_data.set('ICECAST_CAP_TLS',true)
@@ -42,7 +49,7 @@ conf_data.set('HAVE_CURL', true)
 endif
 
 std_headers=['unistd','inttypes','stdint','pwd','grp','strings']
-sys_headers=['types','stat','uio','socket','resource','select']
+sys_headers=['types','stat','uio','socket','resource','select','epoll']
 
 foreach header:std_headers
     if (mycomp.has_header(header+'.h'))
@@ -57,18 +64,19 @@ foreach header:sys_headers
 endforeach
 
 conf_data.set('USE_YP',true)
-conf_data.set('FASTEVENT_ENABLED',true)
 
 foreach func: ['epoll_create', 'poll']
     if (mycomp.has_function(func))
          if (func == 'epoll_create')
-         message('Best Poll Selected Epoll')
+            conf_data.set('HAVE_EPOLL',true)
+            conf_data.set('EPOLL_MAX_EVENTS',10)
+            message('Best Poll Selected Epoll')
          break
          endif
     endif
 endforeach
 
-foreach func: ['select', 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 'getaddrinfo','localtime_r','uname','getrlimit', 'nanosleep','setenv','setuid','setresuid','chroot','sethostent','endhostent','strcasestr']
+foreach func: ['select', 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 'getaddrinfo','localtime_r','uname','getrlimit', 'nanosleep','setenv','setuid','setresuid','chroot','sethostent','endhostent','strcasestr','writev']
     if (mycomp.has_function(func))
     conf_data.set('HAVE_'+func.to_upper(),true)
     endif
@@ -101,12 +109,13 @@ objs = ['main.c','cfgfile.c','logging.c','sighandler.c',
         'fastevent.c','navigation.c','format.c',
         'format_ogg.c','format_mp3.c','format_midi.c',
         'format_flac.c','format_ebml.c','format_text.c',
-        'format_kate.c','format_skeleton.c','format_opus.c','format_vorbis.c','format_theora.c','format_speex.c'
+        'format_kate.c','format_skeleton.c','format_opus.c','format_vorbis.c','format_theora.c',
         'event.c','event_log.c','event_exec.c',
         'acl.c','auth.c','auth_htpasswd.c',
         'auth_anonymous.c','auth_static.c','auth_enforce_auth.c',
         'curl.c','auth_url.c','event_url.c',
-        'yp.c']
+        'yp.c',
+        'format_speex.c']
 link_libs=[avl_lib, net_lib, httpp_lib, log_lib, timing_lib, thread_lib]
 build_deps=[ssl_dep, crypto_dep, xml_dep, xslt_dep, vorbis_dep, ogg_dep, theora_dep,speex_dep,curl_dep,thread_dep]
 
