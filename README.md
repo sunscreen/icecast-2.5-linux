@@ -67,7 +67,7 @@ Found ninja-1.12.0.git at /usr/bin/ninja
 real    0m1.324s
 user    0m0.876s
 sys     0m0.132s
-root@ks4000477:~/icecast-2.5-linux/src/builddir# mcedit ../meson.build
+
 
 root@ks4000477:~/icecast-2.5-linux/src/builddir# time meson compile
 INFO: autodetecting backend as ninja
@@ -77,5 +77,5 @@ INFO: calculating backend command to run: /usr/bin/ninja
 real    0m1.884s
 user    0m4.832s
 sys     0m0.512s
-root@ks4000477:~/icecast-2.5-linux/src/builddir# cd common/
+
 ```
