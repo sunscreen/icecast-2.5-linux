@@ -1,7 +1,7 @@
 project('icecast-linux', 'c', default_options : ['c_std=gnu99'], version:'2.5.0-Linux')
 
 add_global_arguments(['-DHAVE_CONFIG_H'], language : 'c')
-add_global_arguments(['-DHAVE_POLL'], language : 'c')
+#add_global_arguments(['-DHAVE_POLL'], language : 'c')
 
 #install_prefix=option('prefix')
 #message(install_prefix)
@@ -25,13 +25,16 @@ common_include_dir=include_directories('common')
 conf_data = configuration_data()
 conf_data.set('_GNU_SOURCE',true)
 conf_data.set('ICE_VER', '"' + meson.project_version() + '"')
+conf_data.set('USE_YP',true)
+conf_data.set('HAVE_AVL_NODE_LOCK',true)
 
 if (thread_dep.found())
 conf_data.set('FASTEVENT_ENABLED',true)
 endif
 
 if (ssl_dep.found())
-conf_data.set('HAVE_OPENSSL', true)
+conf_data.set('HAVE_OPENSSL_H', true)
+conf_data.set('USE_OPENSSL', true)
 conf_data.set('ICECAST_CAP_TLS',true)
 endif
 
@@ -40,16 +43,18 @@ conf_data.set('HAVE_XSLTSAVERESULTTOSTRING',true)
 endif
 
 if (theora_dep.found())
-conf_data.set('HAVE_THEORA', true)
+conf_data.set('USE_THEORA', true)
 endif
 
 
 if (curl_dep.found())
-conf_data.set('HAVE_CURL', true)
+
+conf_data.set('HAVE_CURL_H', true)
+conf_data.set('USE_CURL', true)
 endif
 
-std_headers=['unistd','inttypes','stdint','pwd','grp','strings']
-sys_headers=['types','stat','uio','socket','resource','select','epoll']
+std_headers=['unistd','inttypes','stdint','pwd','grp','strings','poll']
+sys_headers=['types','stat','uio','socket','resource','select','epoll','utsname']
 
 foreach header:std_headers
     if (mycomp.has_header(header+'.h'))
@@ -63,22 +68,21 @@ foreach header:sys_headers
     endif
 endforeach
 
-conf_data.set('USE_YP',true)
-
 foreach func: ['epoll_create', 'poll']
     if (mycomp.has_function(func))
          if (func == 'epoll_create')
             conf_data.set('HAVE_EPOLL',true)
             conf_data.set('EPOLL_MAX_EVENTS',10)
+            conf_data.set('USE_EPOLL',true)
             message('Best Poll Selected Epoll')
          break
          endif
     endif
 endforeach
 
-foreach func: ['select', 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 'getaddrinfo','localtime_r','uname','getrlimit', 'nanosleep','setenv','setuid','setresuid','chroot','sethostent','endhostent','strcasestr','writev']
+foreach func: ['select', 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 'getaddrinfo','localtime_r','uname','getrlimit', 'nanosleep','setenv','setuid','setgid','setresuid','setresgid','chroot','sethostent','endhostent','strcasestr','writev']
     if (mycomp.has_function(func))
-    conf_data.set('HAVE_'+func.to_upper(),true)
+    conf_data.set('USE_'+func.to_upper(),true)
     endif
 endforeach
 
@@ -115,7 +119,7 @@ objs = ['main.c','cfgfile.c','logging.c','sighandler.c',
         'auth_anonymous.c','auth_static.c','auth_enforce_auth.c',
         'curl.c','auth_url.c','event_url.c',
         'yp.c']
-link_libs=[avl_lib, net_lib, httpp_lib, log_lib, timing_lib, thread_lib]
+link_libs=[avl_lib, net_lib, httpp_lib, log_lib,timing_lib, thread_lib]
 build_deps=[ssl_dep, crypto_dep, xml_dep, xslt_dep, vorbis_dep, ogg_dep, theora_dep,speex_dep,curl_dep,thread_dep]
 
 executable('icecast', [objs], dependencies : [build_deps], include_directories:[common_include_dir], link_with:[link_libs])
