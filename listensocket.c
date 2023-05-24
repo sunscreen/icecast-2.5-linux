@@ -39,7 +39,7 @@ static listensocket_t * listensocket_container_accept__inner_epoll(listensocket_
 
 
         if ((ufds[i].events & (EPOLLERR) )) {
-        listensocket_unrefsock(socks[i]);
+        //listensocket_unrefsock(socks[i]);
         continue;
         }
      }
