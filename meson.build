@@ -1,3 +1,4 @@
+
 project('icecast-linux', 'c', default_options : ['c_std=gnu99'], version:'2.5.0-Linux')
 
 add_global_arguments(['-DHAVE_CONFIG_H'], language : 'c')
@@ -68,19 +69,30 @@ foreach header:sys_headers
     endif
 endforeach
 
-foreach func: ['epoll_create', 'poll']
+foreach func: ['epoll_create', 'poll', 'select']
     if (mycomp.has_function(func))
          if (func == 'epoll_create')
             conf_data.set('HAVE_EPOLL',true)
             conf_data.set('EPOLL_MAX_EVENTS',10)
             conf_data.set('USE_EPOLL',true)
-            message('Best Poll Selected Epoll')
+            message('EPoll Selected')
          break
          endif
+         if (func == 'epoll')
+            conf_data.set('USE_POLL',true)
+            message('Standard Poll Selected')
+         break
+         endif
+         if (func == 'select')
+            conf_data.set('USE_SELECT',true)
+            message('Select Selected')
+         break
+         endif
+
     endif
 endforeach
 
-foreach func: ['select', 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 'getaddrinfo','localtime_r','uname','getrlimit', 'nanosleep','setenv','setuid','setgid','setresuid','setresgid','chroot','sethostent','endhostent','strcasestr','writev']
+foreach func: [ 'inet_pton', 'inet_addr', 'getnameinfo','gethostname', 'getaddrinfo','localtime_r','uname','getrlimit', 'nanosleep','setenv','setuid','setgid','setresuid','setresgid','chroot','sethostent','endhostent','strcasestr','writev']
     if (mycomp.has_function(func))
     conf_data.set('USE_'+func.to_upper(),true)
     endif
