@@ -64,12 +64,12 @@ struct listensocket_tag {
 static int listensocket_container_configure__unlocked(listensocket_container_t *self, const ice_config_t *config);
 static int listensocket_container_setup__unlocked(listensocket_container_t *self);
 static ssize_t listensocket_container_sockcount__unlocked(listensocket_container_t *self);
-static listensocket_t * listensocket_new(const listener_t *listener);
+static inline listensocket_t * listensocket_new(const listener_t *listener);
 static int listensocket_apply_config(listensocket_t *self);
 static int listensocket_apply_config__unlocked(listensocket_t *self);
 static int listensocket_set_update(listensocket_t *self, const listener_t *listener);
-static int listensocket_refsock(listensocket_t *self, bool prefer_inet6);
-static int listensocket_unrefsock(listensocket_t *self);
+static inline int listensocket_refsock(listensocket_t *self, bool prefer_inet6);
+static inline int listensocket_unrefsock(listensocket_t *self);
 
 #ifdef USE_EPOLL
 static inline int listensocket__epoll_fill(listensocket_t *self, struct epoll_event *p);
@@ -77,7 +77,9 @@ static inline int listensocket__epoll_fill(listensocket_t *self, struct epoll_ev
 
 #ifdef USE_POLL
 static inline int listensocket__poll_fill(listensocket_t *self, struct pollfd *p);
-#else
+#endif
+
+#ifdef USE_SELECT
 static inline int listensocket__select_set(listensocket_t *self, fd_set *set, int *max);
 static inline int listensocket__select_isset(listensocket_t *self, fd_set *set);
 #endif
@@ -155,7 +157,7 @@ static void __listensocket_container_clear_sockets(listensocket_container_t *sel
 }
 
 
- void __listensocket_container_free(refobject_t self, void **userdata)
+void __listensocket_container_free(refobject_t self, void **userdata)
 {
     listensocket_container_t *container = REFOBJECT_TO_TYPE(self, listensocket_container_t *);
     thread_mutex_lock(&container->lock);
@@ -164,7 +166,7 @@ static void __listensocket_container_clear_sockets(listensocket_container_t *sel
     thread_mutex_destroy(&container->lock);
 }
 
-int __listensocket_container_new(refobject_t self, const refobject_type_t *type, va_list ap)
+static inline int __listensocket_container_new(refobject_t self, const refobject_type_t *type, va_list ap)
 {
     listensocket_container_t *ret = REFOBJECT_TO_TYPE(self, listensocket_container_t*);
 
@@ -469,7 +471,7 @@ static listensocket_t * listensocket_container_accept__inner_poll(listensocket_c
 }
 #endif
 
-#if (!defined(USE_POLL) && !defined(USE_EPOLL) && defined(HAVE_SELECT_H))
+#if (!defined(USE_POLL) && !defined(USE_EPOLL) && defined(USE_SELECT))
 static listensocket_t * listensocket_container_accept__inner_select(listensocket_container_t *self, int timeout)
 {
     fd_set rfds;
@@ -524,7 +526,7 @@ connection_t * listensocket_container_accept(listensocket_container_t *self, int
     ls = listensocket_container_accept__inner_epoll(self, timeout);
 #endif
 
-#if ( !defined(USE_POLL) && !defined(USE_EPOLL) && defined(HAVE_SELECT_H) )
+#if ( !defined(USE_POLL) && !defined(USE_EPOLL) && defined(USE_SELECT) )
     ls = listensocket_container_accept__inner_select(self, timeout);
 #endif
     refobject_ref(ls);
@@ -624,7 +626,7 @@ listensocket_t **listensocket_container_list_sockets(listensocket_container_t *s
     return res;
 }
 
-bool listensocket_container_is_family_included(listensocket_container_t *self, sock_family_t family)
+bool inline listensocket_container_is_family_included(listensocket_container_t *self, sock_family_t family)
 {
     size_t i;
 
@@ -644,7 +646,7 @@ bool listensocket_container_is_family_included(listensocket_container_t *self, s
 
 /* ---------------------------------------------------------------------------- */
 
-static void __listensocket_free(refobject_t self, void **userdata)
+static inline void __listensocket_free(refobject_t self, void **userdata)
 {
     listensocket_t *listensocket = REFOBJECT_TO_TYPE(self, listensocket_t *);
 
@@ -669,7 +671,7 @@ REFOBJECT_DEFINE_TYPE(listensocket_t,
         REFOBJECT_DEFINE_TYPE_FREE(__listensocket_free)
         );
 
-static listensocket_t * listensocket_new(const listener_t *listener) {
+static inline listensocket_t * listensocket_new(const listener_t *listener) {
     listensocket_t *self;
 
     if (listener == NULL)
@@ -693,7 +695,7 @@ static listensocket_t * listensocket_new(const listener_t *listener) {
     return self;
 }
 
-static int listensocket_apply_config(listensocket_t *self)
+static inline int listensocket_apply_config(listensocket_t *self)
 {
     int ret;
 
@@ -707,7 +709,7 @@ static int listensocket_apply_config(listensocket_t *self)
     return ret;
 }
 
-static int listensocket_apply_config__unlocked(listensocket_t *self)
+static inline int listensocket_apply_config__unlocked(listensocket_t *self)
 {
     const listener_t *listener;
 
@@ -752,7 +754,7 @@ static int listensocket_apply_config__unlocked(listensocket_t *self)
     return 0;
 }
 
-static int listensocket_set_update(listensocket_t *self, const listener_t *listener)
+static inline int listensocket_set_update(listensocket_t *self, const listener_t *listener)
 {
     listener_t *n;
 
@@ -770,7 +772,7 @@ static int listensocket_set_update(listensocket_t *self, const listener_t *liste
     return 0;
 }
 
-static int listensocket_refsock(listensocket_t *self, bool prefer_inet6)
+static inline int listensocket_refsock(listensocket_t *self, bool prefer_inet6)
 {
     if (!self)
         return -1;
@@ -811,7 +813,7 @@ static int listensocket_refsock(listensocket_t *self, bool prefer_inet6)
     return 0;
 }
 
-static int listensocket_unrefsock(listensocket_t *self)
+static inline int listensocket_unrefsock(listensocket_t *self)
 {
     if (!self)
         return -1;
@@ -834,7 +836,7 @@ static int listensocket_unrefsock(listensocket_t *self)
     return 0;
 }
 
-connection_t * listensocket_accept(listensocket_t *self, listensocket_container_t *container)
+inline connection_t * listensocket_accept(listensocket_t *self, listensocket_container_t *container)
 {
     connection_t *con;
     listensocket_t *effective = NULL;
@@ -888,7 +890,7 @@ connection_t * listensocket_accept(listensocket_t *self, listensocket_container_
     return con;
 }
 
-const listener_t *listensocket_get_listener(listensocket_t *self)
+inline const listener_t *listensocket_get_listener(listensocket_t *self)
 {
     const listener_t *ret;
 
@@ -903,7 +905,7 @@ const listener_t *listensocket_get_listener(listensocket_t *self)
     return ret;
 }
 
-int listensocket_release_listener(listensocket_t *self)
+inline int listensocket_release_listener(listensocket_t *self)
 {
     if (!self)
         return -1;
@@ -920,7 +922,7 @@ int listensocket_release_listener(listensocket_t *self)
     return 0;
 }
 
-listener_type_t listensocket_get_type(listensocket_t *self)
+inline listener_type_t listensocket_get_type(listensocket_t *self)
 {
     listener_type_t ret;
 
@@ -1043,7 +1045,7 @@ static inline int listensocket__select_isset(listensocket_t *self, fd_set *set)
 
 /* ---------------------------------------------------------------------------- */
 
-const char *                listensocket_type_to_string(listener_type_t type)
+inline const char * listensocket_type_to_string(listener_type_t type)
 {
     switch (type) {
         case LISTENER_TYPE_ERROR:
@@ -1060,7 +1062,7 @@ const char *                listensocket_type_to_string(listener_type_t type)
     return NULL;
 }
 
-const char *                listensocket_tlsmode_to_string(tlsmode_t mode)
+inline const char * listensocket_tlsmode_to_string(tlsmode_t mode)
 {
     switch (mode) {
         case ICECAST_TLSMODE_DISABLED:
