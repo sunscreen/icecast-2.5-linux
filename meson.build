@@ -78,7 +78,7 @@ foreach func: ['epoll_create', 'poll', 'select']
             message('EPoll Selected')
          break
          endif
-         if (func == 'epoll')
+         if (func == 'poll')
             conf_data.set('USE_POLL',true)
             message('Standard Poll Selected')
          break
