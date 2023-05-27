@@ -78,4 +78,38 @@ real    0m1.884s
 user    0m4.832s
 sys     0m0.512s
 
+root@ks4000477:~/icecast-2.5-linux/src/builddir# ./icecast -c ../conf/icecast-tmp.xml
+epoll instance initilized: 4
+Changed groupid to 1002.
+Changed supplementary groups based on user: sunscreen.
+Changed userid to 1002.
+My handler tid is: 131759791027968 parent pid 4607
+creating thread Stats Thread
+creating thread YP Touch Thread
+creating thread Slave Thread
+creating thread Events Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread File Serving Thread
+creating thread Source Thread
+creating thread File Serving Thread
+CTRL-C Recieved signal 2
+shutting down the server :)
+root@ks4000477:~/icecast-2.5-linux/src/builddir#
+
 ```
