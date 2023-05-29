@@ -1260,14 +1260,12 @@ FLAC__StreamEncoderWriteStatus FLACWriteCallback(
 
 	if(sentbytes < 0) {
 		g->flacFailure = 1;
-		triggerDisconnect(g);
 		return FLAC__STREAM_ENCODER_WRITE_STATUS_FATAL_ERROR;
 	}
 	else {
 		g->flacFailure = 0;
 		
 	}
-
 	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
 }
 }
@@ -2772,10 +2770,10 @@ int do_encoding(altacastGlobals *g, float *samples, int numsamples, int nch) {
 		}
 
 		/*
-		 * Generic error checking, if there are any socket problems, the trigger ;
-		 * a disconnection handling->..
+		 * Generic error checking, if there are any socket problems, then trigger
+		 * a disconnection handling
 		 */
-		if(sentbytes < 0) {
+		if(sentbytes <= 0) { 
 			int rret = triggerDisconnect(g);
 			if (rret == 0) {
 				return 0;
