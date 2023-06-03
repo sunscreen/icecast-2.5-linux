@@ -392,22 +392,38 @@ static listensocket_t * listensocket_container_accept__inner_epoll(listensocket_
 //    ret=epoll_wait(epollinstance, ufds,found, timeout);
 
     if (ret == -1) {
+        int ep_err = errno;
+        if (ep_err == EINTR) {
+        printf("interrupted\n");
+        }
+
+        printf("epoll error: %d\n",ep_err);
+        __call_sockcount_cb(self);
+
         return NULL;
     }
     if (ret == 0) { return NULL; }
 
     for (i = 0; i < found; i++) {
+
+        if (ufds[i].events & (EPOLLERR)) {
+        //printf("good bye err\n");
+        __call_sockcount_cb(self);
+
+        return NULL;
+        }
+
+        if (ufds[i].events & (EPOLLHUP)) {
+        //printf("good bye hup\n");
+        __call_sockcount_cb(self);
+
+        return NULL;
+        }
+
         if (ufds[i].events & EPOLLIN) {
         return socks[i];
         }
 
-        if ((ufds[i].events & (EPOLLERR | EPOLLHUP))) {
-        continue;
-        }
-
-//        for (int p = 0; p < self->sock_len; p++) {
-//        if (self->sock[p] == socks[i]) { listensocket_unrefsock(socks[i]);self->sockref[p] = 0;  __call_sockcount_cb(self); }
-//        }
 
      }
     return NULL;
@@ -965,6 +981,9 @@ static inline int listensocket__epoll_fill(listensocket_t *self, struct epoll_ev
 
     memset(p, 0, sizeof(*p));
     p->data.fd = self->sock;
+//    p->events = EPOLLIN | EPOLLET;
+    sock_set_blocking(self->sock, 0);
+
     p->events = EPOLLIN | EPOLLET;
     res = epoll_ctl(epollinstance, EPOLL_CTL_ADD, self->sock,p);
 
